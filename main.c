@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 
 #define DIM 10
 #define NUM_PALAVRAS 10
@@ -12,18 +11,17 @@ typedef struct {
     int x, y;
     char direcao;
     int ativa;
-    int tentativas;  // Contador de tentativas erradas
+    int tentativas;
 } Palavra;
 
-void inicializar_tabuleiro(char tabuleiro[DIM][DIM]);
-void exibir_tabuleiro(char tabuleiro[DIM][DIM]);
-void exibir_menu();
-int escolher_dificuldade();
-void carregar_palavras(int dificuldade);
+void inicializarTabuleiro(char tabuleiro[DIM][DIM]);
+void exibirTabuleiro(char tabuleiro[DIM][DIM]);
+void exibirMenu();
+int escolherDificuldade();
+void carregarPalavras(int dificuldade);
 void jogar(int dificuldade);
-int verificar_palavra(char *palavra, int x, int y, char direcao);
-void inserir_palavra(char *palavra, int x, int y, char direcao);
-void solicitar_dica(int indice_palavra);
+int verificarPalavra(char *palavra, int x, int y, char direcao);
+void inserirPalavra(char *palavra, int x, int y, char direcao);
 
 Palavra palavras[NUM_PALAVRAS];
 char tabuleiro[DIM][DIM];
@@ -31,14 +29,15 @@ int pontuacao = 1000;
 
 int main() {
     int dificuldade;
-    exibir_menu();
-    dificuldade = escolher_dificuldade();
-    carregar_palavras(dificuldade);
+    exibirMenu();
+    dificuldade = escolherDificuldade();
+    carregarPalavras(dificuldade);
     jogar(dificuldade);
     return 0;
 }
 
-void inicializar_tabuleiro(char tabuleiro[DIM][DIM]) {
+
+void inicializarTabuleiro(char tabuleiro[DIM][DIM]) {
     for (int i = 0; i < DIM; i++) {
         for (int j = 0; j < DIM; j++) {
             tabuleiro[i][j] = '.';
@@ -46,7 +45,7 @@ void inicializar_tabuleiro(char tabuleiro[DIM][DIM]) {
     }
 }
 
-void exibir_tabuleiro(char tabuleiro[DIM][DIM]) {
+void exibirTabuleiro(char tabuleiro[DIM][DIM]) {
     for (int i = 0; i < DIM; i++) {
         for (int j = 0; j < DIM; j++) {
             printf("%c ", tabuleiro[i][j]);
@@ -55,14 +54,14 @@ void exibir_tabuleiro(char tabuleiro[DIM][DIM]) {
     }
 }
 
-void exibir_menu() {
+void exibirMenu() {
     printf("Bem-vindo ao jogo de palavras cruzadas!\n");
     printf("Escolha o nível de dificuldade:\n");
     printf("1. Fácil\n");
     printf("2. Médio\n");
 }
 
-int escolher_dificuldade() {
+int escolherDificuldade() {
     int escolha;
     printf("Digite sua escolha (1 para Fácil, 2 para Médio): ");
     scanf("%d", &escolha);
@@ -73,7 +72,7 @@ int escolher_dificuldade() {
     return escolha;
 }
 
-void carregar_palavras(int dificuldade) {
+void carregarPalavras(int dificuldade) {
     memset(palavras, 0, sizeof(palavras));
     if (dificuldade == 1) { // Fácil
         char *palavras_facil[NUM_PALAVRAS] = {"casa", "gato", "sol", "livro", "arroz", "mesa", "teto", "chuva", "noite", "flor"};
@@ -130,7 +129,7 @@ void carregar_palavras(int dificuldade) {
     }
 }
 
-int verificar_palavra(char *palavra, int x, int y, char direcao) {
+int verificarPalavra(char *palavra, int x, int y, char direcao) {
     int len = strlen(palavra);
     if (direcao == 'H') {
         if (y + len > DIM) return 0; // Verifica se a palavra não ultrapassa os limites do tabuleiro horizontalmente
@@ -150,7 +149,7 @@ int verificar_palavra(char *palavra, int x, int y, char direcao) {
     return 1; // Retorna sucesso se não houver conflitos e a palavra couber no tabuleiro
 }
 
-void inserir_palavra(char *palavra, int x, int y, char direcao) {
+void inserirPalavra(char *palavra, int x, int y, char direcao) {
     int len = strlen(palavra);
     if (direcao == 'H') {
         for (int i = 0; i < len; i++) {
@@ -168,7 +167,7 @@ void jogar(int dificuldade) {
     int indice_palavra = -1;
     int jogo_ativo = 1;
 
-    inicializar_tabuleiro(tabuleiro);
+    inicializarTabuleiro(tabuleiro);
     while (jogo_ativo) {
         jogo_ativo = 0;
         for (int i = 0; i < NUM_PALAVRAS; i++) {
@@ -189,8 +188,8 @@ void jogar(int dificuldade) {
             printf("Insira sua palavra (use até 19 caracteres): ");
             scanf("%19s", palavra_usuario);
 
-            if (verificar_palavra(palavra_usuario, palavras[indice_palavra].x, palavras[indice_palavra].y, palavras[indice_palavra].direcao)) {
-                inserir_palavra(palavra_usuario, palavras[indice_palavra].x, palavras[indice_palavra].y, palavras[indice_palavra].direcao);
+            if (verificarPalavra(palavra_usuario, palavras[indice_palavra].x, palavras[indice_palavra].y, palavras[indice_palavra].direcao)) {
+                inserirPalavra(palavra_usuario, palavras[indice_palavra].x, palavras[indice_palavra].y, palavras[indice_palavra].direcao);
                 palavras[indice_palavra].ativa = 0;
                 printf("Palavra correta! Pontuação: %d\n", pontuacao);
             } else {
@@ -206,7 +205,7 @@ void jogar(int dificuldade) {
                 }
             }
 
-            exibir_tabuleiro(tabuleiro);
+            exibirTabuleiro(tabuleiro);
         }
     }
 
