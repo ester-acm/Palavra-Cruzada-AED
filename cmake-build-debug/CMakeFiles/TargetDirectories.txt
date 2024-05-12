@@ -1,0 +1,3 @@
+/home/ester/CLionProjects/Palavra-Cruzada-AED/cmake-build-debug/CMakeFiles/Palavra_Cruzada_AED.dir
+/home/ester/CLionProjects/Palavra-Cruzada-AED/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/ester/CLionProjects/Palavra-Cruzada-AED/cmake-build-debug/CMakeFiles/rebuild_cache.dir

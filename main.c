@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define DIM 10
 #define NUM_PALAVRAS 10
@@ -63,14 +64,18 @@ void exibirMenu() {
 
 int escolherDificuldade() {
     int escolha;
+    char buffer[10];
     printf("Digite sua escolha (1 para Fácil, 2 para Médio): ");
-    scanf("%d", &escolha);
+    fgets(buffer, 10, stdin);
+    escolha = (int) strtol(buffer, NULL, 10);
     while (escolha < 1 || escolha > 2) {
         printf("Escolha inválida, tente novamente: ");
-        scanf("%d", &escolha);
+        fgets(buffer, 10, stdin);
+        escolha = (int) strtol(buffer, NULL, 10);
     }
     return escolha;
 }
+
 
 void carregarPalavras(int dificuldade) {
     memset(palavras, 0, sizeof(palavras));
