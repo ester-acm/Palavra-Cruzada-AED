@@ -108,7 +108,7 @@ void carregarPalavras(int dificuldade) {
         char *palavras_medio[NUM_PALAVRAS] = {"biblioteca", "universidade", "tecnologia", "montanha", "elefante",
                                               "computador", "orquidea", "revolucao", "galaxia", "nebulosa"};
         char *pistas_medio[NUM_PALAVRAS] = {
-                "Lugar cheio de livros", "Centro de ensino superior em São Paulo", "Campo ligado a inovações", "Grande elevação natural da terra",
+                "Lugar cheio de livros", "Centro de ensino superior", "Campo ligado a inovações", "Grande elevação natural da terra",
                 "Grande mamífero com uma longa tromba", "Máquina para processar informações", "Tipo de flor que pode viver em árvores",
                 "Mudança brusca e radical", "Conjunto enorme de estrelas e planetas", "Nuvem de gás no espaço"
         };
