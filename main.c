@@ -193,9 +193,9 @@ Palavra *carregarPalavras(int dificuldade) {
                 "Geralmente cozido em água", "Tem quatro pernas e é usada para comer", "Fica no alto das casas",
                 "Associada a um guarda-chuva", "Quando as estrelas saem", "Pode ser de várias cores e aromas"
         };
-        int posicoes_x[NUM_PALAVRAS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-        int posicoes_y[NUM_PALAVRAS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-        char direcoes[NUM_PALAVRAS] = {'V', 'H', 'V', 'H', 'V', 'H', 'V', 'H', 'V', 'H'};
+        int posicoes_x[NUM_PALAVRAS] = {2, 1, 0, 3, 2, 7, 6, 2, 6, 5};
+        int posicoes_y[NUM_PALAVRAS] = {0, 1, 2, 8, 3, 5, 6, 8, 8, 1};
+        char direcoes[NUM_PALAVRAS] = {'H', 'V', 'H', 'H', 'V', 'H', 'V', 'H', 'H', 'H'};
         for (int i = 0; i < NUM_PALAVRAS; i++) {
             Palavra *novaPalavra = criarPalavra(palavras_facil[i], pistas_facil[i], pistas_extras_facil[i], posicoes_x[i], posicoes_y[i], direcoes[i]);
             head = inserirOrdenado(head, novaPalavra);
