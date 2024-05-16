@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define DIM 20
+#define DIM_FACIL 15
+#define DIM_MEDIO 20
 #define NUM_PALAVRAS 10
 
 typedef struct Palavra {
@@ -16,42 +17,79 @@ typedef struct Palavra {
     struct Palavra *prox;
 } Palavra;
 
-void inicializarTabuleiro(char tabuleiro[DIM][DIM]);
-void exibirTabuleiro(char tabuleiro[DIM][DIM]);
+void inicializarTabuleiro(char **tabuleiro, int dim);
+void exibirTabuleiro(char **tabuleiro, int dim);
 void exibirMenu();
 int escolherDificuldade();
 Palavra *carregarPalavras(int dificuldade);
-void jogar(Palavra *listaPalavras);
+void jogar(Palavra *listaPalavras, int dim, int *completou);
 void liberarPalavras(Palavra *head);
-int verificarPalavra(char *palavra, int x, int y, char direcao, char *correct_word);
-void inserirPalavra(char *palavra, int x, int y, char direcao);
+int verificarPalavra(char *palavra, int x, int y, char direcao, char *correct_word, int dim);
+int inserirPalavra(char *palavra, int x, int y, char direcao, char **tabuleiro, int dim);
 Palavra *inserirOrdenado(Palavra *head, Palavra *novaPalavra);
 
-char tabuleiro[DIM][DIM];
+char **tabuleiro;
 int pontuacao = 1000;
 
 int main() {
     int dificuldade;
-    inicializarTabuleiro(tabuleiro);
-    exibirMenu();
-    dificuldade = escolherDificuldade();
-    Palavra *listaPalavras = carregarPalavras(dificuldade);
-    jogar(listaPalavras);
-    liberarPalavras(listaPalavras);
+    int dim;
+    int completou = 0;
+
+    while (1) {
+        exibirMenu();
+        dificuldade = escolherDificuldade();
+
+        if (dificuldade == 0) {
+            printf("Saindo do jogo...\n");
+            break;
+        }
+
+        if (dificuldade == 1) {
+            dim = DIM_FACIL;
+        } else if (dificuldade == 2) {
+            dim = DIM_MEDIO;
+        } else {
+            continue;
+        }
+
+        // Alocar tabuleiro dinamicamente
+        tabuleiro = (char **)malloc(dim * sizeof(char *));
+        for (int i = 0; i < dim; i++) {
+            tabuleiro[i] = (char *)malloc(dim * sizeof(char));
+        }
+
+        inicializarTabuleiro(tabuleiro, dim);
+        Palavra *listaPalavras = carregarPalavras(dificuldade);
+        jogar(listaPalavras, dim, &completou);
+        liberarPalavras(listaPalavras);
+
+        // Liberar memória do tabuleiro
+        for (int i = 0; i < dim; i++) {
+            free(tabuleiro[i]);
+        }
+        free(tabuleiro);
+
+        if (completou) {
+            printf("Parabéns, você resolveu todas as palavras!\n");
+            break;
+        }
+    }
+
     return 0;
 }
 
-void inicializarTabuleiro(char tabuleiro[DIM][DIM]) {
-    for (int i = 0; i < DIM; i++) {
-        for (int j = 0; j < DIM; j++) {
+void inicializarTabuleiro(char **tabuleiro, int dim) {
+    for (int i = 0; i < dim; i++) {
+        for (int j = 0; j < dim; j++) {
             tabuleiro[i][j] = '.';
         }
     }
 }
 
-void exibirTabuleiro(char tabuleiro[DIM][DIM]) {
-    for (int i = 0; i < DIM; i++) {
-        for (int j = 0; j < DIM; j++) {
+void exibirTabuleiro(char **tabuleiro, int dim) {
+    for (int i = 0; i < dim; i++) {
+        for (int j = 0; j < dim; j++) {
             printf("%c ", tabuleiro[i][j]);
         }
         printf("\n");
@@ -63,15 +101,16 @@ void exibirMenu() {
     printf("Escolha o nível de dificuldade:\n");
     printf("1. Fácil\n");
     printf("2. Médio\n");
+    printf("0. Sair\n");
 }
 
 int escolherDificuldade() {
     int escolha;
     char buffer[10];
-    printf("Digite sua escolha (1 para Fácil, 2 para Médio): ");
+    printf("Digite sua escolha (0 para Sair, 1 para Fácil, 2 para Médio): ");
     fgets(buffer, 10, stdin);
     escolha = (int)strtol(buffer, NULL, 10);
-    while (escolha < 1 || escolha > 2) {
+    while (escolha < 0 || escolha > 2) {
         printf("Escolha inválida, tente novamente: ");
         fgets(buffer, 10, stdin);
         escolha = (int)strtol(buffer, NULL, 10);
@@ -97,17 +136,30 @@ Palavra *criarPalavra(const char *palavra, const char *pista, const char *pista_
     return novaPalavra;
 }
 
-void inserirPalavra(char *palavra, int x, int y, char direcao) {
+int inserirPalavra(char *palavra, int x, int y, char direcao, char **tabuleiro, int dim) {
     int len = strlen(palavra);
     if (direcao == 'H') { // Inserção horizontal
+        if (y + len > dim) return 0; // Palavra excede o limite do tabuleiro
+        for (int i = 0; i < len; i++) {
+            if (tabuleiro[x][y + i] != '.' && tabuleiro[x][y + i] != palavra[i]) {
+                return 0; // Conflito encontrado
+            }
+        }
         for (int i = 0; i < len; i++) {
             tabuleiro[x][y + i] = palavra[i];
         }
     } else if (direcao == 'V') { // Inserção vertical
+        if (x + len > dim) return 0; // Palavra excede o limite do tabuleiro
+        for (int i = 0; i < len; i++) {
+            if (tabuleiro[x + i][y] != '.' && tabuleiro[x + i][y] != palavra[i]) {
+                return 0; // Conflito encontrado
+            }
+        }
         for (int i = 0; i < len; i++) {
             tabuleiro[x + i][y] = palavra[i];
         }
     }
+    return 1; // Palavra inserida com sucesso
 }
 
 Palavra *inserirOrdenado(Palavra *head, Palavra *novaPalavra) {
@@ -170,7 +222,7 @@ Palavra *carregarPalavras(int dificuldade) {
     return head;
 }
 
-int verificarPalavra(char *palavra, int x, int y, char direcao, char *correct_word) {
+int verificarPalavra(char *palavra, int x, int y, char direcao, char *correct_word, int dim) {
     int len = strlen(palavra);
 
     // Verificar se a palavra corresponde à palavra correta
@@ -181,7 +233,7 @@ int verificarPalavra(char *palavra, int x, int y, char direcao, char *correct_wo
 
     // Verificações adicionais para posicionamento e conflitos
     if (direcao == 'H') {
-        if (y + len > DIM) {
+        if (y + len > dim) {
             printf("Palavra excede os limites horizontais do tabuleiro. x=%d, y=%d, len=%d\n", x, y, len); // Depuração
             return 0;
         }
@@ -192,7 +244,7 @@ int verificarPalavra(char *palavra, int x, int y, char direcao, char *correct_wo
             }
         }
     } else if (direcao == 'V') {
-        if (x + len > DIM) {
+        if (x + len > dim) {
             printf("Palavra excede os limites verticais do tabuleiro. x=%d, y=%d, len=%d\n", x, y, len); // Depuração
             return 0;
         }
@@ -207,8 +259,8 @@ int verificarPalavra(char *palavra, int x, int y, char direcao, char *correct_wo
     return 1;
 }
 
-void jogar(Palavra *listaPalavras) {
-    inicializarTabuleiro(tabuleiro);
+void jogar(Palavra *listaPalavras, int dim, int *completou) {
+    inicializarTabuleiro(tabuleiro, dim);
     int jogo_ativo = 1;
     char palavra_usuario[20];
     int indice_palavra, encontrou;
@@ -229,9 +281,15 @@ void jogar(Palavra *listaPalavras) {
         }
 
         if (jogo_ativo) {
-            printf("Selecione o número da palavra que deseja resolver: ");
+            printf("Selecione o número da palavra que deseja resolver (ou digite -1 para sair): ");
             fgets(buffer, sizeof(buffer), stdin);
             sscanf(buffer, "%d", &indice_palavra);
+
+            if (indice_palavra == -1) {
+                printf("Saindo do jogo...\n");
+                return;
+            }
+
             contagem = 0;
             palavra_atual = listaPalavras;
             encontrou = 0;
@@ -255,8 +313,8 @@ void jogar(Palavra *listaPalavras) {
 
             printf("Verificando palavra: %s\n", palavra_usuario); // Para depuração
 
-            if (verificarPalavra(palavra_usuario, palavra_atual->x, palavra_atual->y, palavra_atual->direcao, palavra_atual->palavra)) {
-                inserirPalavra(palavra_usuario, palavra_atual->x, palavra_atual->y, palavra_atual->direcao);
+            if (verificarPalavra(palavra_usuario, palavra_atual->x, palavra_atual->y, palavra_atual->direcao, palavra_atual->palavra, dim)) {
+                inserirPalavra(palavra_usuario, palavra_atual->x, palavra_atual->y, palavra_atual->direcao, tabuleiro, dim);
                 palavra_atual->ativa = 0;
                 printf("Palavra correta! Pontuação: %d\n", pontuacao);
             } else {
@@ -274,11 +332,11 @@ void jogar(Palavra *listaPalavras) {
                 }
             }
 
-            exibirTabuleiro(tabuleiro);
+            exibirTabuleiro(tabuleiro, dim);
         }
     }
 
-    printf("Parabéns, você resolveu todas as palavras!\n");
+    *completou = 1;
 }
 
 void liberarPalavras(Palavra *head) {
