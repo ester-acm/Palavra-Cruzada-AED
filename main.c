@@ -76,6 +76,9 @@ int main() {
         }
     }
 
+    // Imprimir a pontuação final
+    printf("Sua pontuação final é: %d\n", pontuacao);
+
     return 0;
 }
 
@@ -281,7 +284,7 @@ void jogar(Palavra *listaPalavras, int dim, int *completou) {
         }
 
         if (jogo_ativo) {
-            printf("Selecione o número da palavra que deseja resolver (ou digite -1 para sair): ");
+            printf("Selecione o número da palavra que deseja resolver (ou digite -1 para voltar ao menu principal): ");
             fgets(buffer, sizeof(buffer), stdin);
             sscanf(buffer, "%d", &indice_palavra);
 
